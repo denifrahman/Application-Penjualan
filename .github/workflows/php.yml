@@ -34,3 +34,4 @@ jobs:
             cd /home/rajarevi/admin.rajareview.web.id
             git pull origin master
             git status
+            chown -R rajarevi:rajarevi ../admin.rajareview.web.id/
