@@ -6,18 +6,18 @@ class MY_Controller extends CI_Controller
 		parent::__construct();
 		$this->session_cek();
 	}
-	
+
 	function input_error()
 	{
 		$json['status'] = 0;
-		$json['pesan'] 	= "<div class='alert alert-warning error_validasi'>".validation_errors()."</div>";
+		$json['pesan'] 	= "<div class='alert alert-warning error_validasi'>" . validation_errors() . "</div>";
 		echo json_encode($json);
 	}
 
 	function query_error($pesan = "Terjadi kesalahan, coba lagi !")
 	{
 		$json['status'] = 2;
-		$json['pesan'] 	= "<div class='alert alert-danger error_validasi'>".$pesan."</div>";
+		$json['pesan'] 	= "<div class='alert alert-danger error_validasi'>" . $pesan . "</div>";
 		echo json_encode($json);
 	}
 
@@ -26,47 +26,36 @@ class MY_Controller extends CI_Controller
 		$u = $this->session->userdata('ap_id_user');
 		$p = $this->session->userdata('ap_password');
 		$x = $this->session->userdata('ap_level');
-		// var_dump($u);
+		// var_dump($x. ' ap_level');
 		$controller = $this->router->fetch_class();
 		$method		= $this->router->fetch_method();
 
 		// var_dump($controller);
-		// if($controller == 'secure')
-		{
-			if($method == 'index')
-			{
-				if( !empty($u) && !empty($p))
-				{
+		if ($controller == 'secure') {
+			if ($method == 'index') {
+				if (!empty($u) && !empty($p)) {
 					$URL_home = 'penjualan';
-					if($x == 'inventory')
-					{
+					if ($x == 'inventory') {
 						$URL_home = 'barang';
 					}
-					if($x == 'keuangan')
-					{
+					if ($x == 'keuangan') {
 						$URL_home = 'penjualan/history';
 					}
 
 					redirect($URL_home, 'refresh');
 				}
 			}
+		} else {
+			if (empty($u) or empty($p)) {
+				redirect('secure', 'refresh');
+			} else {
+				$this->load->model('m_user');
+				$cek = $this->m_user->is_valid($u, $p);
+				if ($cek->num_rows() < 1) {
+					redirect('secure/logout', 'refresh');
+				}
+			}
 		}
-		// else
-		// {
-		// 	if(empty($u) OR empty($p))
-		// 	{
-		// 		redirect('secure', 'refresh');
-		// 	}
-		// 	else
-		// 	{
-		// 		$this->load->model('m_user');
-		// 		$cek = $this->m_user->is_valid($u, $p);
-		// 		if($cek->num_rows() < 1)
-		// 		{
-		// 			redirect('secure/logout', 'refresh');
-		// 		}
-		// 	}
-		// }
 	}
 
 	function clean_tag_input($str)

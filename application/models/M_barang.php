@@ -1,5 +1,5 @@
 <?php
-class M_barang extends CI_Model 
+class M_barang extends CI_Model
 {
 	function fetch_data_barang($like_value = NULL, $column_order = NULL, $column_dir = NULL, $limit_start = NULL, $limit_length = NULL)
 	{
@@ -21,27 +21,26 @@ class M_barang extends CI_Model
 				, (SELECT @row := 0) r WHERE 1=1 
 				AND a.`dihapus` = 'tidak' 
 		";
-		
+
 		$data['totalData'] = $this->db->query($sql)->num_rows();
-		
-		if( ! empty($like_value))
-		{
-			$sql .= " AND ( ";    
+
+		if (!empty($like_value)) {
+			$sql .= " AND ( ";
 			$sql .= "
-				a.`kode_barang` LIKE '%".$this->db->escape_like_str($like_value)."%' 
-				OR a.`nama_barang` LIKE '%".$this->db->escape_like_str($like_value)."%'
-				OR IF(a.`total_stok` = 0, 'Kosong', a.`total_stok`) LIKE '%".$this->db->escape_like_str($like_value)."%' 
-				OR CONCAT('Rp. ', REPLACE(FORMAT(a.`harga`, 0),',','.') ) LIKE '%".$this->db->escape_like_str($like_value)."%' 
-				OR a.`keterangan` LIKE '%".$this->db->escape_like_str($like_value)."%' 
-				OR b.`kategori` LIKE '%".$this->db->escape_like_str($like_value)."%' 
-				OR c.`merk` LIKE '%".$this->db->escape_like_str($like_value)."%' 
+				a.`kode_barang` LIKE '%" . $this->db->escape_like_str($like_value) . "%' 
+				OR a.`nama_barang` LIKE '%" . $this->db->escape_like_str($like_value) . "%'
+				OR IF(a.`total_stok` = 0, 'Kosong', a.`total_stok`) LIKE '%" . $this->db->escape_like_str($like_value) . "%' 
+				OR CONCAT('Rp. ', REPLACE(FORMAT(a.`harga`, 0),',','.') ) LIKE '%" . $this->db->escape_like_str($like_value) . "%' 
+				OR a.`keterangan` LIKE '%" . $this->db->escape_like_str($like_value) . "%' 
+				OR b.`kategori` LIKE '%" . $this->db->escape_like_str($like_value) . "%' 
+				OR c.`merk` LIKE '%" . $this->db->escape_like_str($like_value) . "%' 
 			";
 			$sql .= " ) ";
 		}
-		
+
 		$data['totalFiltered']	= $this->db->query($sql)->num_rows();
-		
-		$columns_order_by = array( 
+
+		$columns_order_by = array(
 			0 => 'nomor',
 			1 => 'a.`kode_barang`',
 			2 => 'a.`nama_barang`',
@@ -51,10 +50,10 @@ class M_barang extends CI_Model
 			6 => '`harga`',
 			7 => 'a.`keterangan`'
 		);
-		
-		$sql .= " ORDER BY ".$columns_order_by[$column_order]." ".$column_dir.", nomor ";
-		$sql .= " LIMIT ".$limit_start." ,".$limit_length." ";
-		
+
+		$sql .= " ORDER BY " . $columns_order_by[$column_order] . " " . $column_dir . ", nomor ";
+		$sql .= " LIMIT " . $limit_start . " ," . $limit_length . " ";
+
 		$data['query'] = $this->db->query($sql);
 		return $data;
 	}
@@ -63,11 +62,11 @@ class M_barang extends CI_Model
 	{
 		$dt['dihapus'] = 'ya';
 		return $this->db
-				->where('id_barang', $id_barang)
-				->update('pj_barang', $dt);
+			->where('id_barang', $id_barang)
+			->update('pj_barang', $dt);
 	}
 
-	function tambah_baru($kode, $nama, $id_kategori_barang, $id_merk_barang, $stok, $harga, $keterangan)
+	function tambah_baru($kode, $nama, $id_kategori_barang, $id_merk_barang, $stok, $harga, $keterangan, $sampul, $foto1, $foto2, $foto3)
 	{
 		$dt = array(
 			'kode_barang' => $kode,
@@ -77,7 +76,11 @@ class M_barang extends CI_Model
 			'id_kategori_barang' => $id_kategori_barang,
 			'id_merk_barang' => (empty($id_merk_barang)) ? NULL : $id_merk_barang,
 			'keterangan' => $keterangan,
-			'dihapus' => 'tidak'
+			'dihapus' => 'tidak',
+			'foto_sampul' => $sampul,
+			'foto_1' => $foto1,
+			'foto_2' => $foto2,
+			'foto_3' => $foto3
 		);
 
 		return $this->db->insert('pj_barang', $dt);
@@ -96,13 +99,13 @@ class M_barang extends CI_Model
 	function get_baris($id_barang)
 	{
 		return $this->db
-			->select('id_barang, kode_barang, nama_barang, total_stok, harga, id_kategori_barang, id_merk_barang, keterangan')
+			->select('id_barang, kode_barang, nama_barang, total_stok, harga, id_kategori_barang, id_merk_barang, keterangan, foto_sampul, foto_1, foto_2, foto_3')
 			->where('id_barang', $id_barang)
 			->limit(1)
 			->get('pj_barang');
 	}
 
-	function update_barang($id_barang, $kode_barang, $nama, $id_kategori_barang, $id_merk_barang, $stok, $harga, $keterangan)
+	function update_barang($id_barang, $kode_barang, $nama, $id_kategori_barang, $id_merk_barang, $stok, $harga, $keterangan, $sampul, $foto1, $foto2, $foto3)
 	{
 		$dt = array(
 			'kode_barang' => $kode_barang,
@@ -111,7 +114,11 @@ class M_barang extends CI_Model
 			'harga' => $harga,
 			'id_kategori_barang' => $id_kategori_barang,
 			'id_merk_barang' => (empty($id_merk_barang)) ? NULL : $id_merk_barang,
-			'keterangan' => $keterangan
+			'keterangan' => $keterangan,
+			'foto_sampul' => $sampul,
+			'foto_1' => $foto1,
+			'foto_2' => $foto2,
+			'foto_3' => $foto3
 		);
 
 		return $this->db
@@ -124,19 +131,16 @@ class M_barang extends CI_Model
 		$not_in = '';
 
 		$koma = explode(',', $registered);
-		if(count($koma) > 1)
-		{
+		if (count($koma) > 1) {
 			$not_in .= " AND `kode_barang` NOT IN (";
-			foreach($koma as $k)
-			{
-				$not_in .= " '".$k."', ";
+			foreach ($koma as $k) {
+				$not_in .= " '" . $k . "', ";
 			}
 			$not_in = rtrim(trim($not_in), ',');
-			$not_in = $not_in.")";
+			$not_in = $not_in . ")";
 		}
-		if(count($koma) == 1)
-		{
-			$not_in .= " AND `kode_barang` != '".$registered."' ";
+		if (count($koma) == 1) {
+			$not_in .= " AND `kode_barang` != '" . $registered . "' ";
 		}
 
 		$sql = "
@@ -148,10 +152,10 @@ class M_barang extends CI_Model
 				`dihapus` = 'tidak' 
 				AND `total_stok` > 0 
 				AND ( 
-					`kode_barang` LIKE '%".$this->db->escape_like_str($keyword)."%' 
-					OR `nama_barang` LIKE '%".$this->db->escape_like_str($keyword)."%' 
+					`kode_barang` LIKE '%" . $this->db->escape_like_str($keyword) . "%' 
+					OR `nama_barang` LIKE '%" . $this->db->escape_like_str($keyword) . "%' 
 				) 
-				".$not_in." 
+				" . $not_in . " 
 		";
 
 		return $this->db->query($sql);
@@ -178,7 +182,7 @@ class M_barang extends CI_Model
 	function update_stok($id_barang, $jumlah_beli)
 	{
 		$sql = "
-			UPDATE `pj_barang` SET `total_stok` = `total_stok` - ".$jumlah_beli." WHERE `id_barang` = '".$id_barang."'
+			UPDATE `pj_barang` SET `total_stok` = `total_stok` - " . $jumlah_beli . " WHERE `id_barang` = '" . $id_barang . "'
 		";
 
 		return $this->db->query($sql);

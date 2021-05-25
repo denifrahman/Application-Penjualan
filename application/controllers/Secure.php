@@ -42,7 +42,7 @@ class Secure extends MY_Controller
 						'ap_level' => $data_user->level,
 						'ap_level_caption' => $data_user->level_caption 
 					);
-
+					// var_dump($session);
 					$this->session->set_userdata($session);	
 					$URL_home = site_url('penjualan');
 					if($data_user->level == 'inventory')
